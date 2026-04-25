@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fresno Korean Running Club</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f8f7f4;
+    --white: #ffffff;
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --border: #e8e6e1;
+    --accent: #e8601c;
+    --accent-light: #fff0ea;
+    --gold: #c8882a;
+    --green: #2d7a4f;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  .nav-logo span { color: var(--text); }
+
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav-tabs::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 8px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 8px;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { background: var(--bg); color: var(--text); }
+  .tab-btn.active { background: var(--accent-light); color: var(--accent); }
+
+  /* MAIN */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    padding: 48px 0 40px;
+  }
+
+  .hero-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  .hero p {
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+
+  /* STAT CARDS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 32px 0;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-card .stat-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-card .stat-label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* SECTION */
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  /* LEADERBOARD */
+  .leaderboard {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-bottom: 32px;
+  }
+
+  .lb-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .lb-header h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+  }
+
+  .lb-filter {
+    display: flex;
+    gap: 6px;
+  }
+
+  .lb-filter button {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    font-size: 0.78rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .lb-filter button.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .lb-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    gap: 16px;
+  }
+
+  .lb-row:last-child { border-bottom: none; }
+  .lb-row:hover { background: var(--bg); }
+
+  .lb-rank {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--muted);
+    min-width: 32px;
+  }
+
+  .lb-rank.gold { color: #c8882a; }
+  .lb-rank.silver { color: #8a8a8a; }
+  .lb-rank.bronze { color: #a0622a; }
+
+  .lb-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .lb-info { flex: 1; min-width: 0; }
+  .lb-name { font-weight: 600; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+  .lb-bar-wrap { flex: 1; max-width: 200px; }
+  .lb-bar-bg { background: var(--bg); border-radius: 99px; height: 6px; overflow: hidden; }
+  .lb-bar { height: 100%; border-radius: 99px; background: var(--accent); transition: width 0.8s ease; }
+
+  .lb-dist {
+    font-weight: 600;
+    font-size: 0.9rem;
+    min-width: 60px;
+    text-align: right;
+  }
+
+  /* CHART */
+  .chart-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+
+  .chart-card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+
+  .chart-wrap { position: relative; height: 260px; }
+
+  /* MEMBER FILTER */
+  .member-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .pill {
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--white);
+    color: var(--muted);
+  }
+
+  .pill.active {
+    color: white;
+    border-color: transparent;
+  }
+
+  /* TABLE */
+  .table-wrap {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .table-toolbar {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 180px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    background: var(--bg);
+    outline: none;
+    color: var(--text);
+  }
+
+  .search-box:focus { border-color: var(--accent); }
+
+  select.filter-select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    background: var(--bg);
+    outline: none;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  td {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 99px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .pg-btn {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .pg-btn:hover { background: var(--bg); }
+  .pg-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .pg-info { font-size: 0.82rem; color: var(--muted); }
+
+  /* MONTHLY GRID */
+  .monthly-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .member-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .member-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .member-card h4 {
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+
+  .member-card-sub { font-size: 0.75rem; color: var(--muted); }
+
+  .monthly-bars { display: flex; flex-direction: column; gap: 8px; }
+
+  .month-row { display: flex; align-items: center; gap: 10px; }
+  .month-label { font-size: 0.75rem; color: var(--muted); min-width: 28px; }
+  .month-bar-bg { flex: 1; background: var(--bg); border-radius: 99px; height: 8px; overflow: hidden; }
+  .month-bar { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
+  .month-val { font-size: 0.75rem; font-weight: 600; min-width: 50px; text-align: right; }
+
+  /* PACE PAGE */
+  .pace-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    nav { padding: 0 16px; }
+    .nav-logo { font-size: 1rem; }
+    main { padding: 20px 14px; }
+    .hero { padding: 32px 0 24px; }
+    .lb-bar-wrap { display: none; }
+    th:nth-child(4), td:nth-child(4),
+    th:nth-child(5), td:nth-child(5),
+    th:nth-child(6), td:nth-child(6) { display: none; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 0.9rem; }
+
+  /* MONTH SELECT */
+  .month-select-wrap {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .month-pill {
+    padding: 6px 16px;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--white);
+    color: var(--muted);
+  }
+
+  .month-pill.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">FKRC <span>Running Club</span></div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="showPage('leaderboard')">🏆 Leaderboard</button>
+    <button class="tab-btn" onclick="showPage('monthly')">📊 Monthly</button>
+    <button class="tab-btn" onclick="showPage('pace')">📈 PaceTrends</button>
+    <button class="tab-btn" onclick="showPage('records')">📋 AllRecords</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- LEADERBOARD PAGE -->
+<div id="page-leaderboard" class="page active">
+  <div class="hero">
+    <div class="hero-label">Fresno Korean Running Club</div>
+    <h1>Who Ran the Most<br><em>This Month?</em></h1>
+    <p id="hero-sub"></p>
+  </div>
+
+  <div class="stats-grid" id="stats-grid"></div>
+
+  <div class="leaderboard" id="leaderboard-section">
+    <div class="lb-header">
+      <h3>Member Rankings</h3>
+      <div class="lb-filter">
+        <button class="active" onclick="setLbMetric('dist', this)">Distance</button>
+        <button onclick="setLbMetric('count', this)">Count</button>
+      </div>
+    </div>
+    <div id="lb-rows"></div>
+  </div>
+
+  <div class="chart-card">
+    <h3>Group Daily Cumulative Distance This Month (mi)</h3>
+    <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
+  </div>
+</div>
+
+<!-- MONTHLY PAGE -->
+<div id="page-monthly" class="page">
+  <div class="hero" style="padding:32px 0 24px">
+    <h1>Member <em>Monthly Records</em></h1>
+  </div>
+
+  <div class="month-select-wrap" id="monthly-month-pills"></div>
+  <div class="monthly-grid" id="monthly-grid"></div>
+</div>
+
+<!-- PACE PAGE -->
+<div id="page-pace" class="page">
+  <div class="hero" style="padding:32px 0 24px">
+    <h1>Pace <em>Trend Analysis</em></h1>
+  </div>
+
+  <div class="chart-card">
+    <h3>Monthly Group Average Pace</h3>
+    <div class="chart-wrap"><canvas id="groupPaceChart"></canvas></div>
+  </div>
+
+  <div class="section-title">Individual Pace Trends</div>
+  <div class="member-pills" id="pace-member-pills"></div>
+  <div class="chart-card">
+    <div class="chart-wrap"><canvas id="memberPaceChart"></canvas></div>
+  </div>
+</div>
+
+<!-- RECORDS PAGE -->
+<div id="page-records" class="page">
+  <div class="hero" style="padding:32px 0 24px">
+    <h1>All <em>Running Records</em></h1>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <input class="search-box" type="text" placeholder="Search name or activity..." id="search-input" oninput="filterTable()">
+      <select class="filter-select" id="member-filter" onchange="filterTable()">
+        <option value="">All Members</option>
+      </select>
+      <select class="filter-select" id="month-filter" onchange="filterTable()">
+        <option value="">All Period</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Activity</th>
+            <th>Distance(mi)</th>
+            <th>Distance(km)</th>
+            <th>Pace</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="records-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const RAW = [{"name":"Ellis McClure","date":"2026-04-25","title":"California Classic Half Marathon","dist_mi":13.2,"dist_km":21.24,"pace":"8:53 /mi","time":"1h 57m"},{"name":"Hyung Tae Kim","date":"2026-04-24","title":"Evening Run","dist_mi":8.87,"dist_km":14.27,"pace":"9:39 /mi","time":"1h 25m"},{"name":"Heejun Lee","date":"2026-04-24","title":"Morning Run","dist_mi":4.05,"dist_km":6.52,"pace":"8:53 /mi","time":"36m 1s"},{"name":"Seung Hun Jung","date":"2026-04-24","title":"Morning Run","dist_mi":4.07,"dist_km":6.55,"pace":"8:50 /mi","time":"36m 1s"},{"name":"상희 이","date":"2026-04-23","title":"Night Run","dist_mi":3.43,"dist_km":5.52,"pace":"10:37 /mi","time":"36m 26s"},{"name":"Hyung Tae Kim","date":"2026-04-23","title":"Evening Run","dist_mi":3.68,"dist_km":5.92,"pace":"9:51 /mi","time":"36m 15s"},{"name":"상희 이","date":"2026-04-22","title":"Evening Run","dist_mi":4.98,"dist_km":8.01,"pace":"9:30 /mi","time":"47m 20s"},{"name":"Hyung Tae Kim","date":"2026-04-22","title":"Evening Run","dist_mi":3.67,"dist_km":5.91,"pace":"8:44 /mi","time":"32m 6s"},{"name":"Seung Hun Jung","date":"2026-04-20","title":"Evening Run","dist_mi":4.36,"dist_km":7.02,"pace":"9:08 /mi","time":"39m 50s"},{"name":"Hyung Tae Kim","date":"2026-04-19","title":"Evening Run","dist_mi":8.25,"dist_km":13.28,"pace":"9:47 /mi","time":"1h 20m"},{"name":"Heejun Lee","date":"2026-04-19","title":"Morning Run","dist_mi":8.01,"dist_km":12.89,"pace":"9:10 /mi","time":"1h 13m"},{"name":"Hyung Tae Kim","date":"2026-04-17","title":"Evening Run","dist_mi":7.48,"dist_km":12.04,"pace":"9:10 /mi","time":"1h 8m"},{"name":"Jae Kim","date":"2026-04-17","title":"Warm upafter 냅다 뜀요!","dist_mi":3.1,"dist_km":4.99,"pace":"7:21 /mi","time":"22m 52s"},{"name":"Jae Kim","date":"2026-04-17","title":"Morning Run","dist_mi":0.68,"dist_km":1.09,"pace":"11:41 /mi","time":"7m 59s"},{"name":"ashley park","date":"2026-04-17","title":"Morning Run","dist_mi":3.4,"dist_km":5.47,"pace":"9:27 /mi","time":"32m 10s"},{"name":"상희 이","date":"2026-04-16","title":"Night Run","dist_mi":4.36,"dist_km":7.02,"pace":"9:45 /mi","time":"42m 34s"},{"name":"Yushin Ahn","date":"2026-04-16","title":"Evening Run","dist_mi":1.56,"dist_km":2.51,"pace":"13:31 /mi","time":"21m 9s"},{"name":"Hyung Tae Kim","date":"2026-04-15","title":"Evening Run","dist_mi":6.32,"dist_km":10.17,"pace":"9:40 /mi","time":"1h 1m"},{"name":"Seung Hun Jung","date":"2026-04-15","title":"Morning Run","dist_mi":4.74,"dist_km":7.63,"pace":"9:30 /mi","time":"45m 4s"},{"name":"상희 이","date":"2026-04-14","title":"Evening Run","dist_mi":5.03,"dist_km":8.09,"pace":"9:44 /mi","time":"49m 0s"},{"name":"Hyung Tae Kim","date":"2026-04-14","title":"Evening Run","dist_mi":3.69,"dist_km":5.94,"pace":"9:05 /mi","time":"33m 32s"},{"name":"Yushin Ahn","date":"2026-04-14","title":"Evening Run","dist_mi":2.27,"dist_km":3.65,"pace":"11:02 /mi","time":"25m 8s"},{"name":"ashley park","date":"2026-04-14","title":"Morning Run","dist_mi":2.06,"dist_km":3.32,"pace":"9:36 /mi","time":"19m 51s"},{"name":"상희 이","date":"2026-04-13","title":"Evening Run","dist_mi":4.62,"dist_km":7.44,"pace":"10:29 /mi","time":"48m 26s"},{"name":"Seung Hun Jung","date":"2026-04-13","title":"Evening Run","dist_mi":3.79,"dist_km":6.1,"pace":"10:28 /mi","time":"39m 46s"},{"name":"Hyung Tae Kim","date":"2026-04-12","title":"Afternoon Run","dist_mi":8.94,"dist_km":14.39,"pace":"10:14 /mi","time":"1h 31m"},{"name":"Heejun Lee","date":"2026-04-12","title":"Morning Run","dist_mi":14.18,"dist_km":22.82,"pace":"9:00 /mi","time":"2h 7m"},{"name":"Sung Jun","date":"2026-04-11","title":"Evening Run","dist_mi":4.14,"dist_km":6.66,"pace":"17:12 /mi","time":"1h 11m"},{"name":"Sung Jun","date":"2026-04-10","title":"Evening Run","dist_mi":3.16,"dist_km":5.09,"pace":"19:02 /mi","time":"1h 0m"},{"name":"Hyung Tae Kim","date":"2026-04-10","title":"Evening Run","dist_mi":6.6,"dist_km":10.62,"pace":"9:42 /mi","time":"1h 4m"},{"name":"Jae Kim","date":"2026-04-10","title":"Morning Run","dist_mi":0.62,"dist_km":1.0,"pace":"10:26 /mi","time":"6m 31s"},{"name":"Seung Hun Jung","date":"2026-04-10","title":"Morning Run","dist_mi":3.87,"dist_km":6.23,"pace":"8:53 /mi","time":"34m 28s"},{"name":"Heejun Lee","date":"2026-04-10","title":"Morning Run","dist_mi":3.11,"dist_km":5.01,"pace":"7:56 /mi","time":"24m 42s"},{"name":"상희 이","date":"2026-04-08","title":"Evening Run","dist_mi":5.53,"dist_km":8.9,"pace":"9:52 /mi","time":"54m 33s"},{"name":"Hyung Tae Kim","date":"2026-04-08","title":"Evening Run","dist_mi":8.45,"dist_km":13.6,"pace":"10:10 /mi","time":"1h 25m"},{"name":"Heejun Lee","date":"2026-04-08","title":"Morning Run","dist_mi":3.82,"dist_km":6.15,"pace":"8:20 /mi","time":"31m 54s"},{"name":"Heejun Lee","date":"2026-04-06","title":"Evening Run","dist_mi":4.88,"dist_km":7.85,"pace":"8:48 /mi","time":"43m 1s"},{"name":"Yushin Ahn","date":"2026-04-06","title":"Evening Run","dist_mi":2.0,"dist_km":3.22,"pace":"11:11 /mi","time":"22m 23s"},{"name":"Sung Jun","date":"2026-04-06","title":"Evening Run","dist_mi":0.68,"dist_km":1.09,"pace":"10:22 /mi","time":"7m 4s"},{"name":"Hyung Tae Kim","date":"2026-04-05","title":"Evening Run","dist_mi":10.28,"dist_km":16.54,"pace":"9:20 /mi","time":"1h 35m"},{"name":"Jae Kim","date":"2026-04-05","title":"Evening Run","dist_mi":0.76,"dist_km":1.22,"pace":"11:29 /mi","time":"8m 48s"},{"name":"Sung Jun","date":"2026-04-05","title":"Morning Run","dist_mi":8.44,"dist_km":13.58,"pace":"10:01 /mi","time":"1h 24m"},{"name":"Yushin Ahn","date":"2026-04-04","title":"Evening Run","dist_mi":1.37,"dist_km":2.2,"pace":"12:14 /mi","time":"16m 52s"},{"name":"상희 이","date":"2026-04-02","title":"Evening Run","dist_mi":4.6,"dist_km":7.4,"pace":"9:52 /mi","time":"45m 21s"},{"name":"Yushin Ahn","date":"2026-04-02","title":"Evening Run","dist_mi":1.86,"dist_km":2.99,"pace":"11:24 /mi","time":"21m 17s"},{"name":"Hyung Tae Kim","date":"2026-04-02","title":"Evening Run","dist_mi":9.56,"dist_km":15.39,"pace":"9:44 /mi","time":"1h 33m"},{"name":"상희 이","date":"2026-04-01","title":"Evening Run","dist_mi":5.08,"dist_km":8.18,"pace":"9:45 /mi","time":"49m 35s"},{"name":"Sung Jun","date":"2026-04-01","title":"Morning Run","dist_mi":3.77,"dist_km":6.07,"pace":"9:22 /mi","time":"35m 23s"},{"name":"상희 이","date":"2026-03-31","title":"Afternoon Run","dist_mi":1.13,"dist_km":1.82,"pace":"8:50 /mi","time":"10m 3s"},{"name":"Heejun Lee","date":"2026-03-31","title":"Afternoon Run","dist_mi":4.01,"dist_km":6.45,"pace":"8:44 /mi","time":"35m 0s"},{"name":"ashley park","date":"2026-03-31","title":"Morning Run","dist_mi":5.45,"dist_km":8.77,"pace":"9:41 /mi","time":"52m 50s"},{"name":"상희 이","date":"2026-03-30","title":"Evening Run","dist_mi":5.49,"dist_km":8.84,"pace":"9:34 /mi","time":"52m 38s"},{"name":"Heejun Lee","date":"2026-03-30","title":"Evening Run","dist_mi":1.07,"dist_km":1.72,"pace":"10:51 /mi","time":"11m 38s"},{"name":"Yushin Ahn","date":"2026-03-30","title":"Morning Run","dist_mi":1.18,"dist_km":1.9,"pace":"13:42 /mi","time":"16m 14s"},{"name":"Yushin Ahn","date":"2026-03-29","title":"Evening Run","dist_mi":0.93,"dist_km":1.5,"pace":"13:07 /mi","time":"12m 14s"},{"name":"Seung Hun Jung","date":"2026-03-29","title":"Morning Run","dist_mi":12.59,"dist_km":20.26,"pace":"10:10 /mi","time":"2h 8m"},{"name":"Sung Jun","date":"2026-03-29","title":"Morning Run","dist_mi":8.61,"dist_km":13.86,"pace":"9:54 /mi","time":"1h 25m"},{"name":"상희 이","date":"2026-03-28","title":"Evening Run","dist_mi":6.0,"dist_km":9.66,"pace":"9:31 /mi","time":"57m 10s"},{"name":"Yushin Ahn","date":"2026-03-28","title":"Morning Run","dist_mi":3.15,"dist_km":5.07,"pace":"15:26 /mi","time":"48m 44s"},{"name":"Ellis McClure","date":"2026-03-28","title":"United Heath Centers Foundation Fun Run 5K","dist_mi":3.12,"dist_km":5.02,"pace":"7:58 /mi","time":"24m 55s"},{"name":"Yuna Ha","date":"2026-03-28","title":"Morning Run","dist_mi":1.73,"dist_km":2.78,"pace":"10:07 /mi","time":"17m 30s"},{"name":"상희 이","date":"2026-03-27","title":"Evening Run","dist_mi":3.31,"dist_km":5.33,"pace":"9:55 /mi","time":"32m 51s"},{"name":"Yushin Ahn","date":"2026-03-27","title":"Evening Run","dist_mi":0.82,"dist_km":1.32,"pace":"12:11 /mi","time":"10m 3s"},{"name":"Heejun Lee","date":"2026-03-27","title":"Morning Run","dist_mi":4.3,"dist_km":6.92,"pace":"10:49 /mi","time":"46m 34s"},{"name":"Hyung Tae Kim","date":"2026-03-27","title":"Morning Run","dist_mi":6.51,"dist_km":10.48,"pace":"9:29 /mi","time":"1h 1m"},{"name":"상희 이","date":"2026-03-26","title":"Evening Run","dist_mi":6.17,"dist_km":9.93,"pace":"9:47 /mi","time":"1h 0m"},{"name":"ashley park","date":"2026-03-26","title":"so late","dist_mi":2.11,"dist_km":3.4,"pace":"9:15 /mi","time":"19m 32s"},{"name":"Yushin Ahn","date":"2026-03-26","title":"Afternoon Run","dist_mi":1.73,"dist_km":2.78,"pace":"13:21 /mi","time":"23m 12s"},{"name":"Hyung Tae Kim","date":"2026-03-25","title":"Evening Run","dist_mi":3.69,"dist_km":5.94,"pace":"8:52 /mi","time":"32m 44s"},{"name":"상희 이","date":"2026-03-25","title":"Afternoon Run","dist_mi":4.08,"dist_km":6.57,"pace":"9:18 /mi","time":"37m 59s"},{"name":"ashley park","date":"2026-03-25","title":"yay good weather :))","dist_mi":4.03,"dist_km":6.49,"pace":"9:42 /mi","time":"39m 7s"},{"name":"Heejun Lee","date":"2026-03-25","title":"Morning Run","dist_mi":3.91,"dist_km":6.29,"pace":"8:47 /mi","time":"34m 21s"},{"name":"Sung Jun","date":"2026-03-24","title":"Night Run","dist_mi":1.52,"dist_km":2.45,"pace":"19:20 /mi","time":"29m 34s"},{"name":"상희 이","date":"2026-03-24","title":"Night Run","dist_mi":3.3,"dist_km":5.31,"pace":"9:52 /mi","time":"32m 37s"},{"name":"ashley park","date":"2026-03-24","title":"Night Run","dist_mi":2.1,"dist_km":3.38,"pace":"9:31 /mi","time":"20m 0s"},{"name":"Jae Kim","date":"2026-03-23","title":"Evening Run","dist_mi":6.01,"dist_km":9.67,"pace":"10:43 /mi","time":"1h 4m"},{"name":"Hyung Tae Kim","date":"2026-03-23","title":"Evening Run","dist_mi":9.46,"dist_km":15.22,"pace":"9:33 /mi","time":"1h 30m"},{"name":"Heejun Lee","date":"2026-03-23","title":"Evening Run","dist_mi":4.05,"dist_km":6.52,"pace":"9:43 /mi","time":"39m 21s"},{"name":"Ellis McClure","date":"2026-03-22","title":"Spring Fling Duathlon (3rd Leg: Run)","dist_mi":1.86,"dist_km":2.99,"pace":"8:58 /mi","time":"16m 44s"},{"name":"Ellis McClure","date":"2026-03-22","title":"Spring Fling Duathlon (1st Leg: Run)","dist_mi":1.84,"dist_km":2.96,"pace":"9:01 /mi","time":"16m 40s"},{"name":"Jae Kim","date":"2026-03-22","title":"Morning Run","dist_mi":11.89,"dist_km":19.14,"pace":"10:45 /mi","time":"2h 7m"},{"name":"Yushin Ahn","date":"2026-03-21","title":"Night Run","dist_mi":2.0,"dist_km":3.22,"pace":"14:54 /mi","time":"29m 52s"},{"name":"Joseph Kim","date":"2026-03-21","title":"Morning Run","dist_mi":1.85,"dist_km":2.98,"pace":"10:11 /mi","time":"18m 51s"},{"name":"Hyung Tae Kim","date":"2026-03-21","title":"Morning Run","dist_mi":4.07,"dist_km":6.55,"pace":"9:29 /mi","time":"38m 40s"},{"name":"상희 이","date":"2026-03-20","title":"Evening Run","dist_mi":4.4,"dist_km":7.08,"pace":"10:17 /mi","time":"45m 14s"},{"name":"Heejun Lee","date":"2026-03-20","title":"Morning Run","dist_mi":5.21,"dist_km":8.38,"pace":"10:28 /mi","time":"54m 39s"},{"name":"상희 이","date":"2026-03-19","title":"Evening Run","dist_mi":2.18,"dist_km":3.51,"pace":"9:29 /mi","time":"20m 40s"},{"name":"Hyung Tae Kim","date":"2026-03-18","title":"Evening Run","dist_mi":9.04,"dist_km":14.55,"pace":"9:15 /mi","time":"1h 23m"},{"name":"상희 이","date":"2026-03-18","title":"Afternoon Run","dist_mi":4.05,"dist_km":6.52,"pace":"9:07 /mi","time":"36m 58s"},{"name":"Seung Hun Jung","date":"2026-03-18","title":"Morning Run","dist_mi":4.3,"dist_km":6.92,"pace":"8:50 /mi","time":"37m 59s"},{"name":"상희 이","date":"2026-03-17","title":"Night Run","dist_mi":4.79,"dist_km":7.71,"pace":"10:00 /mi","time":"47m 56s"},{"name":"Yushin Ahn","date":"2026-03-16","title":"Evening Run","dist_mi":2.67,"dist_km":4.3,"pace":"16:13 /mi","time":"43m 24s"},{"name":"Heejun Lee","date":"2026-03-16","title":"Evening Run","dist_mi":4.91,"dist_km":7.9,"pace":"9:37 /mi","time":"47m 16s"},{"name":"상희 이","date":"2026-03-15","title":"Evening Run","dist_mi":3.22,"dist_km":5.18,"pace":"9:46 /mi","time":"31m 32s"},{"name":"Hyung Tae Kim","date":"2026-03-15","title":"Evening Run","dist_mi":8.03,"dist_km":12.92,"pace":"9:38 /mi","time":"1h 17m"},{"name":"Yushin Ahn","date":"2026-03-15","title":"Evening Run","dist_mi":1.17,"dist_km":1.88,"pace":"13:48 /mi","time":"16m 11s"},{"name":"Heejun Lee","date":"2026-03-15","title":"Morning Run","dist_mi":10.04,"dist_km":16.16,"pace":"9:02 /mi","time":"1h 30m"},{"name":"Seung Hun Jung","date":"2026-03-15","title":"Morning Run","dist_mi":14.96,"dist_km":24.08,"pace":"9:31 /mi","time":"2h 22m"},{"name":"Yushin Ahn","date":"2026-03-14","title":"Night Run","dist_mi":1.09,"dist_km":1.75,"pace":"18:25 /mi","time":"20m 5s"},{"name":"상희 이","date":"2026-03-14","title":"Evening Run","dist_mi":6.37,"dist_km":10.25,"pace":"9:24 /mi","time":"59m 54s"},{"name":"상희 이","date":"2026-03-13","title":"Evening Run","dist_mi":4.54,"dist_km":7.31,"pace":"10:10 /mi","time":"46m 13s"},{"name":"Hyung Tae Kim","date":"2026-03-13","title":"Evening Run","dist_mi":6.89,"dist_km":11.09,"pace":"9:50 /mi","time":"1h 7m"},{"name":"Seung Hun Jung","date":"2026-03-13","title":"Morning Run","dist_mi":4.91,"dist_km":7.9,"pace":"11:06 /mi","time":"54m 32s"},{"name":"Heejun Lee","date":"2026-03-13","title":"Morning Run","dist_mi":4.44,"dist_km":7.15,"pace":"9:52 /mi","time":"43m 51s"},{"name":"상희 이","date":"2026-03-12","title":"Night Run","dist_mi":4.39,"dist_km":7.07,"pace":"10:17 /mi","time":"45m 13s"},{"name":"Hyung Tae Kim","date":"2026-03-12","title":"Evening Run","dist_mi":3.54,"dist_km":5.7,"pace":"9:02 /mi","time":"32m 0s"},{"name":"Yushin Ahn","date":"2026-03-11","title":"Night Run","dist_mi":3.03,"dist_km":4.88,"pace":"16:22 /mi","time":"49m 46s"},{"name":"Hyung Tae Kim","date":"2026-03-11","title":"Afternoon Run","dist_mi":7.47,"dist_km":12.02,"pace":"9:29 /mi","time":"1h 10m"},{"name":"상희 이","date":"2026-03-11","title":"Afternoon Run","dist_mi":4.48,"dist_km":7.21,"pace":"10:34 /mi","time":"47m 21s"},{"name":"Heejun Lee","date":"2026-03-11","title":"Morning Run","dist_mi":3.91,"dist_km":6.29,"pace":"9:11 /mi","time":"35m 54s"},{"name":"Hyung Tae Kim","date":"2026-03-10","title":"Night Run","dist_mi":3.53,"dist_km":5.68,"pace":"8:47 /mi","time":"31m 2s"},{"name":"상희 이","date":"2026-03-10","title":"Night Run","dist_mi":4.35,"dist_km":7.0,"pace":"9:39 /mi","time":"42m 1s"},{"name":"Yushin Ahn","date":"2026-03-09","title":"Night Run","dist_mi":1.81,"dist_km":2.91,"pace":"15:29 /mi","time":"28m 4s"},{"name":"Heejun Lee","date":"2026-03-09","title":"Evening Run","dist_mi":5.6,"dist_km":9.01,"pace":"9:34 /mi","time":"53m 40s"},{"name":"Hyung Tae Kim","date":"2026-03-08","title":"Evening Run","dist_mi":5.99,"dist_km":9.64,"pace":"9:56 /mi","time":"59m 33s"},{"name":"Heejun Lee","date":"2026-03-08","title":"Morning Run","dist_mi":8.12,"dist_km":13.07,"pace":"9:27 /mi","time":"1h 16m"},{"name":"Jae Kim","date":"2026-03-08","title":"Morning Run","dist_mi":14.18,"dist_km":22.82,"pace":"9:20 /mi","time":"2h 12m"},{"name":"상희 이","date":"2026-03-07","title":"Night Run","dist_mi":6.03,"dist_km":9.7,"pace":"9:23 /mi","time":"56m 35s"},{"name":"Yushin Ahn","date":"2026-03-07","title":"Morning Run","dist_mi":1.0,"dist_km":1.61,"pace":"15:50 /mi","time":"15m 55s"},{"name":"상희 이","date":"2026-03-06","title":"Night Run","dist_mi":5.08,"dist_km":8.18,"pace":"10:04 /mi","time":"51m 10s"},{"name":"Yushin Ahn","date":"2026-03-06","title":"Night Run","dist_mi":2.08,"dist_km":3.35,"pace":"12:16 /mi","time":"25m 35s"},{"name":"Heejun Lee","date":"2026-03-06","title":"Morning Run","dist_mi":4.26,"dist_km":6.86,"pace":"9:21 /mi","time":"39m 52s"},{"name":"Seung Hun Jung","date":"2026-03-06","title":"Morning Run","dist_mi":4.21,"dist_km":6.78,"pace":"9:29 /mi","time":"40m 1s"},{"name":"상희 이","date":"2026-03-05","title":"Evening Run","dist_mi":4.67,"dist_km":7.52,"pace":"9:26 /mi","time":"44m 7s"},{"name":"상희 이","date":"2026-03-04","title":"Night Run","dist_mi":5.03,"dist_km":8.09,"pace":"9:28 /mi","time":"47m 41s"},{"name":"Hyung Tae Kim","date":"2026-03-04","title":"Afternoon Run","dist_mi":7.51,"dist_km":12.09,"pace":"9:09 /mi","time":"1h 8m"},{"name":"Heejun Lee","date":"2026-03-04","title":"Morning Run","dist_mi":4.62,"dist_km":7.44,"pace":"9:02 /mi","time":"41m 47s"},{"name":"상희 이","date":"2026-03-03","title":"Night Run","dist_mi":4.49,"dist_km":7.23,"pace":"9:14 /mi","time":"41m 26s"},{"name":"Hyung Tae Kim","date":"2026-03-03","title":"Evening Run","dist_mi":6.46,"dist_km":10.4,"pace":"9:12 /mi","time":"59m 29s"},{"name":"Heejun Lee","date":"2026-03-03","title":"Recovery Run","dist_mi":4.1,"dist_km":6.6,"pace":"10:31 /mi","time":"43m 13s"},{"name":"Seung Hun Jung","date":"2026-03-02","title":"Evening Run","dist_mi":6.55,"dist_km":10.54,"pace":"9:30 /mi","time":"1h 2m"},{"name":"Joseph Kim","date":"2026-03-02","title":"Dallas Evening Run","dist_mi":4.2,"dist_km":6.76,"pace":"9:31 /mi","time":"40m 1s"},{"name":"상희 이","date":"2026-03-01","title":"Evening Run","dist_mi":5.1,"dist_km":8.21,"pace":"9:27 /mi","time":"48m 14s"},{"name":"Heejun Lee","date":"2026-03-01","title":"Morning Run","dist_mi":11.08,"dist_km":17.83,"pace":"10:08 /mi","time":"1h 52m"},{"name":"Hyung Tae Kim","date":"2026-03-01","title":"Morning Run","dist_mi":3.83,"dist_km":6.16,"pace":"10:52 /mi","time":"41m 38s"},{"name":"Yushin Ahn","date":"2026-02-28","title":"Evening Run","dist_mi":3.1,"dist_km":4.99,"pace":"13:12 /mi","time":"40m 57s"},{"name":"상희 이","date":"2026-02-28","title":"Evening Run","dist_mi":5.41,"dist_km":8.71,"pace":"9:24 /mi","time":"50m 53s"},{"name":"ashley park","date":"2026-02-28","title":"that was so hard","dist_mi":4.11,"dist_km":6.61,"pace":"10:16 /mi","time":"42m 16s"},{"name":"Ellis McClure","date":"2026-02-28","title":"Support Blue Run 2026","dist_mi":6.18,"dist_km":9.95,"pace":"8:44 /mi","time":"53m 58s"},{"name":"상희 이","date":"2026-02-27","title":"Evening Run","dist_mi":1.86,"dist_km":2.99,"pace":"9:37 /mi","time":"17m 55s"}];
+
+// COLORS
+const COLORS = ['#e8601c','#2d7a4f','#3b82f6','#a855f7','#ec4899','#f59e0b','#06b6d4','#84cc16','#f97316','#6366f1','#14b8a6'];
+const members = [...new Set(RAW.map(d=>d.name))];
+const memberColor = {};
+members.forEach((m,i) => memberColor[m] = COLORS[i % COLORS.length]);
+
+function paceToSec(pace) {
+  if (!pace) return null;
+  const m = pace.match(/(\d+):(\d+)/);
+  if (!m) return null;
+  return parseInt(m[1])*60 + parseInt(m[2]);
+}
+
+function secToPace(s) {
+  if (!s) return '-';
+  return `${Math.floor(s/60)}:${String(Math.round(s%60)).padStart(2,'0')}`;
+}
+
+function getMonth(date) { return date.slice(0,7); }
+
+function getMonthLabel(ym) {
+  const [y,m] = ym.split('-');
+  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${names[parseInt(m)-1]} ${y}`;
+}
+
+const currentMonth = RAW.map(d=>getMonth(d.date)).sort().reverse()[0];
+const allMonths = [...new Set(RAW.map(d=>getMonth(d.date)))].sort();
+
+// AVATAR
+function avatarEl(name, size=40) {
+  const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const color = memberColor[name] || '#888';
+  return `<div class="lb-avatar" style="background:${color};width:${size}px;height:${size}px">${initials}</div>`;
+}
+
+// ============ LEADERBOARD ============
+let lbMetric = 'dist';
+let dailyChart = null;
+
+function setLbMetric(m, btn) {
+  lbMetric = m;
+  document.querySelectorAll('.lb-filter button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeaderboard();
+}
+
+function renderLeaderboard() {
+  const thisMonth = RAW.filter(d => getMonth(d.date) === currentMonth);
+
+  // Stats
+  const totalDist = thisMonth.reduce((a,b) => a + (b.dist_mi||0), 0);
+  const totalRuns = thisMonth.length;
+  const activeMembers = new Set(thisMonth.map(d=>d.name)).size;
+  const avgDist = totalRuns ? (totalDist/totalRuns).toFixed(1) : 0;
+
+  document.getElementById('hero-sub').textContent = `${getMonthLabel(currentMonth)} · ${activeMembers} members`;
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-val">${totalDist.toFixed(0)}</div><div class="stat-label">Total Distance (mi)</div></div>
+    <div class="stat-card"><div class="stat-val">${(totalDist*1.60934).toFixed(0)}</div><div class="stat-label">Total Distance (km)</div></div>
+    <div class="stat-card"><div class="stat-val">${totalRuns}</div><div class="stat-label">Total Runs</div></div>
+    <div class="stat-card"><div class="stat-val">${activeMembers}</div><div class="stat-label">Active Members</div></div>
+    <div class="stat-card"><div class="stat-val">${avgDist}</div><div class="stat-label">Avg Distance (mi)</div></div>
+  `;
+
+  // Member stats
+  const memberStats = {};
+  thisMonth.forEach(d => {
+    if (!memberStats[d.name]) memberStats[d.name] = { dist:0, count:0 };
+    memberStats[d.name].dist += d.dist_mi || 0;
+    memberStats[d.name].count++;
+  });
+
+  const sorted = Object.entries(memberStats).sort((a,b) =>
+    lbMetric === 'dist' ? b[1].dist - a[1].dist : b[1].count - a[1].count
+  );
+  const maxVal = sorted[0] ? (lbMetric === 'dist' ? sorted[0][1].dist : sorted[0][1].count) : 1;
+
+  const rankClasses = ['gold','silver','bronze'];
+  const rankEmojis = ['🥇','🥈','🥉'];
+
+  document.getElementById('lb-rows').innerHTML = sorted.map(([name, s], i) => {
+    const val = lbMetric === 'dist' ? s.dist.toFixed(1) : s.count;
+    const unit = lbMetric === 'dist' ? ' mi' : ' runs';
+    const pct = ((lbMetric === 'dist' ? s.dist : s.count) / maxVal * 100).toFixed(1);
+    const rankClass = rankClasses[i] || '';
+    return `
+      <div class="lb-row">
+        <div class="lb-rank ${rankClass}">${i < 3 ? rankEmojis[i] : i+1}</div>
+        ${avatarEl(name)}
+        <div class="lb-info">
+          <div class="lb-name">${name}</div>
+          <div class="lb-sub">${s.count}runs · ${s.dist.toFixed(1)} mi</div>
+        </div>
+        <div class="lb-bar-wrap">
+          <div class="lb-bar-bg"><div class="lb-bar" style="width:${pct}%;background:${memberColor[name]}"></div></div>
+        </div>
+        <div class="lb-dist">${val} ${unit}</div>
+      </div>`;
+  }).join('');
+
+  // Daily chart
+  const days = [...new Set(thisMonth.map(d=>d.date))].sort();
+  let cumulative = 0;
+  const cumulData = days.map(day => {
+    cumulative += thisMonth.filter(d=>d.date===day).reduce((a,b)=>a+(b.dist_mi||0),0);
+    return { x: day, y: parseFloat(cumulative.toFixed(1)) };
+  });
+
+  if (dailyChart) dailyChart.destroy();
+  dailyChart = new Chart(document.getElementById('dailyChart'), {
+    type: 'line',
+    data: {
+      labels: days.map(d => d.slice(5)),
+      datasets: [{
+        label: 'Cumulative Distance (mi)',
+        data: cumulData.map(d=>d.y),
+        borderColor: '#e8601c',
+        backgroundColor: 'rgba(232,96,28,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#e8601c'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } },
+        y: { grid: { color: '#f0ede8' }, ticks: { font: { family: 'DM Sans', size: 11 } } }
+      }
+    }
+  });
+}
+
+// ============ MONTHLY ============
+let selectedMonthlyMonth = 'all';
+
+function renderMonthlyPills() {
+  const pills = document.getElementById('monthly-month-pills');
+  pills.innerHTML = `<button class="month-pill active" onclick="selectMonthlyMonth('all', this)">All</button>` +
+    allMonths.map(m => `<button class="month-pill" onclick="selectMonthlyMonth('${m}', this)">${getMonthLabel(m)}</button>`).join('');
+}
+
+function selectMonthlyMonth(m, btn) {
+  selectedMonthlyMonth = m;
+  document.querySelectorAll('.month-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMonthly();
+}
+
+function renderMonthly() {
+  const grid = document.getElementById('monthly-grid');
+  const data = selectedMonthlyMonth === 'all' ? RAW : RAW.filter(d => getMonth(d.date) === selectedMonthlyMonth);
+  const months = selectedMonthlyMonth === 'all' ? allMonths : [selectedMonthlyMonth];
+
+  const cards = members.map(name => {
+    const memberData = data.filter(d => d.name === name);
+    if (!memberData.length) return '';
+
+    const totalDist = memberData.reduce((a,b)=>a+(b.dist_mi||0),0);
+    const totalRuns = memberData.length;
+
+    const monthBars = months.map(m => {
+      const mData = memberData.filter(d => getMonth(d.date) === m);
+      const dist = mData.reduce((a,b)=>a+(b.dist_mi||0),0);
+      return { m, dist, count: mData.length };
+    });
+
+    const maxDist = Math.max(...monthBars.map(b=>b.dist), 1);
+
+    return `
+      <div class="member-card">
+        <div class="member-card-header">
+          ${avatarEl(name, 36)}
+          <div>
+            <div class="member-card h4" style="font-weight:600;font-size:0.92rem">${name}</div>
+            <div class="member-card-sub">${totalRuns}runs · ${totalDist.toFixed(1)} mi total</div>
+          </div>
+        </div>
+        <div class="monthly-bars">
+          ${monthBars.filter(b=>b.dist>0).map(b => `
+            <div class="month-row">
+              <div class="month-label">${getMonthLabel(b.m).slice(0,3)}</div>
+              <div class="month-bar-bg"><div class="month-bar" style="width:${(b.dist/maxDist*100).toFixed(0)}%;background:${memberColor[name]}"></div></div>
+              <div class="month-val">${b.dist.toFixed(1)} mi</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }).filter(Boolean).join('');
+
+  grid.innerHTML = cards || '<div class="empty">No data available</div>';
+}
+
+// ============ PACE ============
+let selectedPaceMembers = new Set(members);
+let groupPaceChart = null, memberPaceChart = null;
+
+function renderPacePills() {
+  const pills = document.getElementById('pace-member-pills');
+  pills.innerHTML = members.map(m => `
+    <div class="pill active" style="background:${memberColor[m]};border-color:${memberColor[m]}"
+      onclick="togglePaceMember('${m}', this)">${m}</div>`).join('');
+}
+
+function togglePaceMember(name, el) {
+  if (selectedPaceMembers.has(name)) {
+    selectedPaceMembers.delete(name);
+    el.style.background = '';
+    el.style.borderColor = '';
+    el.style.color = '';
+    el.classList.remove('active');
+  } else {
+    selectedPaceMembers.add(name);
+    el.style.background = memberColor[name];
+    el.style.borderColor = memberColor[name];
+    el.style.color = 'white';
+    el.classList.add('active');
+  }
+  renderMemberPaceChart();
+}
+
+function renderGroupPaceChart() {
+  const monthlyPace = allMonths.map(m => {
+    const mData = RAW.filter(d => getMonth(d.date) === m);
+    const paces = mData.map(d => paceToSec(d.pace)).filter(Boolean);
+    const avg = paces.length ? paces.reduce((a,b)=>a+b,0)/paces.length : null;
+    return avg;
+  });
+
+  if (groupPaceChart) groupPaceChart.destroy();
+  groupPaceChart = new Chart(document.getElementById('groupPaceChart'), {
+    type: 'line',
+    data: {
+      labels: allMonths.map(getMonthLabel),
+      datasets: [{
+        label: 'Average Pace',
+        data: monthlyPace,
+        borderColor: '#e8601c',
+        backgroundColor: 'rgba(232,96,28,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 6,
+        pointBackgroundColor: '#e8601c'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `Pace: ${secToPace(ctx.raw)} /mi` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } },
+        y: {
+          reverse: true,
+          grid: { color: '#f0ede8' },
+          ticks: { font: { family: 'DM Sans', size: 11 }, callback: v => secToPace(v) }
+        }
+      }
+    }
+  });
+}
+
+function renderMemberPaceChart() {
+  const datasets = [...selectedPaceMembers].map(name => {
+    const data = allMonths.map(m => {
+      const mData = RAW.filter(d => d.name === name && getMonth(d.date) === m);
+      const paces = mData.map(d => paceToSec(d.pace)).filter(Boolean);
+      return paces.length ? paces.reduce((a,b)=>a+b,0)/paces.length : null;
+    });
+    return {
+      label: name,
+      data,
+      borderColor: memberColor[name],
+      backgroundColor: 'transparent',
+      tension: 0.4,
+      pointRadius: 5,
+      pointBackgroundColor: memberColor[name],
+      spanGaps: true
+    };
+  });
+
+  if (memberPaceChart) memberPaceChart.destroy();
+  memberPaceChart = new Chart(document.getElementById('memberPaceChart'), {
+    type: 'line',
+    data: { labels: allMonths.map(getMonthLabel), datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${secToPace(ctx.raw)} /mi` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } },
+        y: {
+          reverse: true,
+          grid: { color: '#f0ede8' },
+          ticks: { font: { family: 'DM Sans', size: 11 }, callback: v => secToPace(v) }
+        }
+      }
+    }
+  });
+}
+
+// ============ RECORDS ============
+let currentPage = 1;
+const perPage = 20;
+let filteredData = [...RAW];
+
+function initRecords() {
+  const memberSel = document.getElementById('member-filter');
+  const monthSel = document.getElementById('month-filter');
+  members.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = m;
+    memberSel.appendChild(opt);
+  });
+  allMonths.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = getMonthLabel(m);
+    monthSel.appendChild(opt);
+  });
+  filterTable();
+}
+
+function filterTable() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const member = document.getElementById('member-filter').value;
+  const month = document.getElementById('month-filter').value;
+  filteredData = RAW.filter(d => {
+    if (member && d.name !== member) return false;
+    if (month && getMonth(d.date) !== month) return false;
+    if (q && !d.name.toLowerCase().includes(q) && !d.title.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  currentPage = 1;
+  renderTable();
+}
+
+function renderTable() {
+  const start = (currentPage-1)*perPage;
+  const pageData = filteredData.slice(start, start+perPage);
+  const tbody = document.getElementById('records-tbody');
+
+  if (!pageData.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">No results found</td></tr>';
+  } else {
+    tbody.innerHTML = pageData.map(d => `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${avatarEl(d.name, 28)}
+            <span style="font-weight:500">${d.name}</span>
+          </div>
+        </td>
+        <td style="color:var(--muted)">${d.date}</td>
+        <td>${d.title}</td>
+        <td style="font-weight:600">${d.dist_mi || '-'}</td>
+        <td style="color:var(--muted)">${d.dist_km || '-'}</td>
+        <td>${d.pace || '-'}</td>
+        <td>${d.time || '-'}</td>
+      </tr>`).join('');
+  }
+
+  renderPagination();
+}
+
+function renderPagination() {
+  const total = Math.ceil(filteredData.length / perPage);
+  const pg = document.getElementById('pagination');
+  if (total <= 1) { pg.innerHTML = ''; return; }
+
+  let html = `<button class="pg-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>←</button>`;
+  for (let i=1; i<=total; i++) {
+    if (i===1 || i===total || Math.abs(i-currentPage)<=1) {
+      html += `<button class="pg-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    } else if (Math.abs(i-currentPage)===2) {
+      html += `<span class="pg-info">…</span>`;
+    }
+  }
+  html += `<button class="pg-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>→</button>`;
+  html += `<span class="pg-info">${filteredData.length}of ${Math.min((currentPage-1)*perPage+1,filteredData.length)}-${Math.min(currentPage*perPage,filteredData.length)}</span>`;
+  pg.innerHTML = html;
+}
+
+function goPage(p) {
+  const total = Math.ceil(filteredData.length / perPage);
+  if (p < 1 || p > total) return;
+  currentPage = p;
+  renderTable();
+}
+
+// ============ PAGE NAV ============
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.target.classList.add('active');
+
+  if (id === 'pace') {
+    setTimeout(() => { renderGroupPaceChart(); renderMemberPaceChart(); }, 50);
+  }
+}
+
+// INIT
+renderLeaderboard();
+renderMonthlyPills();
+renderMonthly();
+renderPacePills();
+initRecords();
+</script>
+</body>
+</html>
